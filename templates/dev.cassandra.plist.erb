@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>Label</key>
+    <string>dev.cassandra</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string><%= scope.lookupvar "cassandra::config::executable" %></string>
+        <string>-f</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>WorkingDirectory</key>
+    <string><%= scope.lookupvar "cassandra::config::datadir" %></string>
+
+    <key>EnvironmentVariables</key>
+    <dict><key>CASSANDRA_CONF</key><string><%= scope.lookupvar "cassandra::config::configdir" %></string></dict>
+  </dict>
+</plist>
