@@ -5,7 +5,6 @@ class cassandra::config {
   $datadir    = "${boxen::config::datadir}/cassandra"
   $executable = "${boxen::config::home}/homebrew/bin/cassandra"
   $logdir     = "${boxen::config::logdir}/cassandra"
-  $logfile    = "${logdir}/cassandra.log"
   $cluster    = 'github-dev'
 
 

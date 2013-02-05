@@ -37,10 +37,10 @@
     <string><%= scope.lookupvar "cassandra::config::datadir" %></string>
 
     <key>StandardErrorPath</key>
-    <string><%= scope.lookupvar "cassandra::config::logfile" %></string>
+    <string><%= scope.lookupvar "cassandra::config::logdir" %>/stderr.log</string>
 
     <key>StandardOutPath</key>
-    <string><%= scope.lookupvar "cassandra::config::logfile" %></string>
+    <string><%= scope.lookupvar "cassandra::config::logdir" %>/stdout.log</string>
 
     <key>EnvironmentVariables</key>
     <dict>
