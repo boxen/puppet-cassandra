@@ -16,7 +16,7 @@ class cassandra {
     ensure => directory
   }
 
-  file { "${cassandra::config::configdir}/cassandra.yml":
+  file { "${cassandra::config::configdir}/cassandra.yaml":
     content => template('cassandra/cassandra.yaml.erb'),
     notify  => Service['dev.cassandra'],
   }
