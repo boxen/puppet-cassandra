@@ -17,7 +17,7 @@ describe 'cassandra' do
     should contain_file('/opt/boxen/data/cassandra')
     should contain_file('/opt/boxen/log/cassandra')
 
-    should contain_file('/opt/boxen/config/cassandra/cassandra.yml').with({
+    should contain_file('/opt/boxen/config/cassandra/cassandra.yaml').with({
       :notify => 'Service[dev.cassandra]',
     })
 
