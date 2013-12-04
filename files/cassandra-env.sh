@@ -30,6 +30,11 @@ calculate_heap_sizes()
             system_memory_in_mb=`prtconf | awk '/Memory size:/ {print $3}'`
             system_cpu_cores=`psrinfo | wc -l`
         ;;
+        Darwin)
+            system_memory_in_bytes=`sysctl hw.memsize | awk '{print $2}'`
+            system_memory_in_mb=`expr $system_memory_in_bytes / 1024 / 1024`
+            system_cpu_cores=`sysctl hw.ncpu | awk '{print $2}'`
+        ;;
         *)
             # assume reasonable defaults for e.g. a modern desktop or
             # cheap server
@@ -127,6 +132,9 @@ esac
 #MAX_HEAP_SIZE="4G"
 #HEAP_NEWSIZE="800M"
 
+# Set this to control the amount of arenas per-thread in glibc
+#MALLOC_ARENA_MAX=4
+
 if [ "x$MAX_HEAP_SIZE" = "x" ] && [ "x$HEAP_NEWSIZE" = "x" ]; then
     calculate_heap_sizes
 else
@@ -134,6 +142,11 @@ else
         echo "please set or unset MAX_HEAP_SIZE and HEAP_NEWSIZE in pairs (see cassandra-env.sh)"
         exit 1
     fi
+fi
+
+if [ "x$MALLOC_ARENA_MAX" = "x" ]
+then
+    MALLOC_ARENA_MAX=4
 fi
 
 # Specifies the default port over which Cassandra will be available for
@@ -179,14 +192,9 @@ fi
 
 startswith() { [ "${1#$2}" != "$1" ]; }
 
-if [ "`uname`" = "Linux" ] ; then
-    # reduce the per-thread stack size to minimize the impact of Thrift
-    # thread-per-client.  (Best practice is for client connections to
-    # be pooled anyway.) Only do so on Linux where it is known to be
-    # supported.
-    # u34 and greater need 180k
-    JVM_OPTS="$JVM_OPTS -Xss180k"
-fi
+# Per-thread stack size.
+JVM_OPTS="$JVM_OPTS -Xss256k"
+
 echo "xss = $JVM_OPTS"
 
 # GC tuning options
@@ -197,6 +205,11 @@ JVM_OPTS="$JVM_OPTS -XX:SurvivorRatio=8"
 JVM_OPTS="$JVM_OPTS -XX:MaxTenuringThreshold=1"
 JVM_OPTS="$JVM_OPTS -XX:CMSInitiatingOccupancyFraction=75"
 JVM_OPTS="$JVM_OPTS -XX:+UseCMSInitiatingOccupancyOnly"
+JVM_OPTS="$JVM_OPTS -XX:+UseTLAB"
+# note: bash evals '1.7.x' as > '1.7' so this is really a >= 1.7 jvm check
+if [ "$JVM_VERSION" \> "1.7" ] && [ "$JVM_ARCH" = "64-Bit" ] ; then
+    JVM_OPTS="$JVM_OPTS -XX:+UseCondCardMark"
+fi
 
 # GC logging options -- uncomment to enable
 # JVM_OPTS="$JVM_OPTS -XX:+PrintGCDetails"
@@ -207,6 +220,17 @@ JVM_OPTS="$JVM_OPTS -XX:+UseCMSInitiatingOccupancyOnly"
 # JVM_OPTS="$JVM_OPTS -XX:+PrintPromotionFailure"
 # JVM_OPTS="$JVM_OPTS -XX:PrintFLSStatistics=1"
 # JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/cassandra/gc-`date +%s`.log"
+# If you are using JDK 6u34 7u2 or later you can enable GC log rotation
+# don't stick the date in the log name if rotation is on.
+# JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/cassandra/gc.log"
+# JVM_OPTS="$JVM_OPTS -XX:+UseGCLogFileRotation"
+# JVM_OPTS="$JVM_OPTS -XX:NumberOfGCLogFiles=10"
+# JVM_OPTS="$JVM_OPTS -XX:GCLogFileSize=10M"
+
+# Configure the following for JEMallocAllocator and if jemalloc is not available in the system 
+# library path (Example: /usr/local/). Usually "make install" will do the right thing. 
+# export LD_LIBRARY_PATH=<JEMALLOC_HOME>/
+# JVM_OPTS="$JVM_OPTS -Djava.library.path=<JEMALLOC_HOME>/"
 
 # uncomment to have Cassandra JVM listen for remote debuggers/profilers on port 1414
 # JVM_OPTS="$JVM_OPTS -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1414"

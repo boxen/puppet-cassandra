@@ -34,7 +34,7 @@ describe 'cassandra' do
       with_before('Package[boxen/brews/cassandra]')
 
     should contain_package('boxen/brews/cassandra').with({
-      :ensure  => '1.1.7-boxen1',
+      :ensure  => '2.0.3-boxen1',
       :notify  => 'Service[dev.cassandra]'
     })
 
