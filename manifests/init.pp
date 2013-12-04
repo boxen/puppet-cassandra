@@ -36,7 +36,7 @@ class cassandra {
   }
 
   package { 'boxen/brews/cassandra':
-    ensure  => '1.1.7-boxen1',
+    ensure  => '2.0.3-boxen1',
     require => Class['java'],
     notify  => Service['dev.cassandra'],
   }
