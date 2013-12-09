@@ -1,3 +1,5 @@
+# Internal: configuration values for Cassandra
+#
 class cassandra::config {
   require boxen::config
 
