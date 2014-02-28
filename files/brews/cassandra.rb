@@ -2,7 +2,7 @@ require 'formula'
 
 class Cassandra < Formula
   homepage 'http://cassandra.apache.org'
-  url 'http://www.apache.org/dyn/closer.cgi?path=/cassandra/2.0.3/apache-cassandra-2.0.3-bin.tar.gz'
+  url 'https://archive.apache.org/dist/cassandra/2.0.3/apache-cassandra-2.0.3-bin.tar.gz'
   version '2.0.3-boxen1'
   sha1 '0d77b92172e45ef879a7decc00ca4dbe48ef1e1d'
 
